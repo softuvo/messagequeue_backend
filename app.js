@@ -38,7 +38,6 @@ if(isProduction){
 }
 
 require('./models/User');
-require('./models/Article');
 require('./models/Comment');
 require('./config/passport');
 
@@ -79,6 +78,6 @@ app.use(function(err, req, res, next) {
 });
 
 // finally, let's start our server...
-var server = app.listen( process.env.PORT || 3000, function(){
+var server = app.listen( process.env.PORT || 2024, function(){
   console.log('Listening on port ' + server.address().port);
 });

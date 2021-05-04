@@ -1,53 +1,42 @@
 var router = require('express').Router();
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
+var Comment = mongoose.model('Comment');
 var auth = require('../auth');
 
-// Preload user profile on routes with ':username'
-router.param('username', function(req, res, next, username){
-  User.findOne({username: username}).then(function(user){
-    if (!user) { return res.sendStatus(404); }
 
-    req.profile = user;
-
-    return next();
-  }).catch(next);
-});
-
-router.get('/:username', auth.optional, function(req, res, next){
-  if(req.payload){
-    User.findById(req.payload.id).then(function(user){
-      if(!user){ return res.json({profile: req.profile.toProfileJSONFor(false)}); }
-
-      return res.json({profile: req.profile.toProfileJSONFor(user)});
-    });
-  } else {
-    return res.json({profile: req.profile.toProfileJSONFor(false)});
+router.post('/users/message', function (req, res, next) {
+  var comment = new Comment();
+  if (!req.body.data.message) {
+    return res.status(422).json({ errors: { message: "Message can't be blank" } });
   }
-});
 
-router.post('/:username/follow', auth.required, function(req, res, next){
-  var profileId = req.profile._id;
-
-  User.findById(req.payload.id).then(function(user){
-    if (!user) { return res.sendStatus(401); }
-
-    return user.follow(profileId).then(function(){
-      return res.json({profile: req.profile.toProfileJSONFor(user)});
-    });
+  if (!req.body.data.userId) {
+    return res.status(422).json({ errors: { userId: "UserId can't be blank" } });
+  }
+  comment.body = req.body.data.message;
+  comment.author = req.body.data.userId;
+  comment.save().then(async (comment, error) => {
+    let updateCommentUser = await User.findOneAndUpdate({ _id: req.body.data.userId }, { $push: { commentId: comment._id }, new: true })
+    return res.json({ comment: comment });
   }).catch(next);
 });
 
-router.delete('/:username/follow', auth.required, function(req, res, next){
-  var profileId = req.profile._id;
 
-  User.findById(req.payload.id).then(function(user){
-    if (!user) { return res.sendStatus(401); }
-
-    return user.unfollow(profileId).then(function(){
-      return res.json({profile: req.profile.toProfileJSONFor(user)});
-    });
-  }).catch(next);
+router.post('/users/post', async (req, res, next) => {
+  console.log("req", req.body);
+  // var user = new User();
+  // var comment = new Comment();
+  if (!req.body.data.userId) {
+    return res.status(422).json({ errors: { userId: "UserId can't be blank" } });
+  }
+  console.log("comment 33", Comment);
+  Comment.find({ author: req.body.data.userId })
+    .exec((err, product) => {
+      console.log(err, product);
+      return res.json({ product: product });
+    }).catch(next);
 });
+
 
 module.exports = router;
