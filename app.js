@@ -33,7 +33,7 @@ if (!isProduction) {
 if(isProduction){
   mongoose.connect(process.env.MONGODB_URI);
 } else {
-  mongoose.connect('mongodb://localhost/messageQueue');
+  mongoose.connect('mongodb://localhost:27018/messageQueue');
   mongoose.set('debug', true);
 }
 
