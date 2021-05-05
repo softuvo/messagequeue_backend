@@ -28,7 +28,7 @@ router.post('/users/fetchMessage', function (req, res, next) {
   var messageList = [];
 
   for (var i = 0; i < 10; i++) {
-    messageList.push({message: "Random string", val: i })
+    messageList.push({body: `Random string${i}`, val: i })
   }
 
   return res.status(201).json({ data:  messageList});
