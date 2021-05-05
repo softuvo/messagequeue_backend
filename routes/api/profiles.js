@@ -23,6 +23,18 @@ router.post('/users/message', function (req, res, next) {
 });
 
 
+router.post('/users/fetchMessage', function (req, res, next) {
+
+  var messageList = [];
+
+  for (var i = 0; i < 10; i++) {
+    messageList.push({message: "Random string", val: i })
+  }
+
+  return res.status(201).json({ data:  messageList});
+
+});
+
 router.post('/users/post', async (req, res, next) => {
   console.log("req", req.body);
   // var user = new User();
